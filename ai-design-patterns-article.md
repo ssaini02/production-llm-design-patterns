@@ -51,6 +51,8 @@ Each pattern follows a consistent structure:
 
 The patterns are framework-agnostic. Whether you're using LangChain, plain OpenAI/Anthropic APIs, or something else, these architectural patterns apply. I'll use pseudocode that should be readable regardless of your stack.
 
+> **📊 A Note on Metrics:** Performance numbers throughout this article — cache hit rates, cost savings, latency improvements, accuracy gains — are illustrative order-of-magnitude estimates based on common engineering experience and publicly reported ranges. Your results will vary significantly based on query volume, model choice, domain, and implementation quality. Treat them as directional guidance, not guarantees. Where specific papers are cited, those numbers come from the referenced research.
+
 Let's dive in.
 
 ---
@@ -1060,15 +1062,14 @@ metrics = {
 }
 ```
 
-**📊 By the Numbers:**
+**📊 By the Numbers (illustrative):**
 
-From production contact center system (anonymized):
-- Cache hit rate: 78%
-- Cost per cached response: $0.0001 (just embedding calculation)
-- Cost per uncached response: $0.018 (retrieval + LLM)
-- Daily queries: 50,000
-- Daily savings: 50,000 × 0.78 × $0.0179 = $698/day = $21,400/month
-- Latency improvement: p95 latency dropped from 1.8s to 0.4s
+Illustrative estimates for a high-volume contact center deployment:
+- Cache hit rate: 70–85% (highly query-pattern dependent)
+- Cost per cached response: ~$0.0001 (embedding lookup only)
+- Cost per uncached response: ~$0.015–0.025 (retrieval + LLM generation)
+- At 50,000 daily queries with 78% cache hit rate: ~$600–700/day savings
+- Latency: p95 typically drops from ~1.5–2s uncached to ~50–100ms on cache hit
 
 **⚠️ Watch Out:**
 
@@ -3070,18 +3071,51 @@ How do you know if your LLM application is successful? Track these metrics:
 
 ### References & Further Reading
 
-**Frameworks & Tools:**
-- LangChain - Orchestration framework
-- LlamaIndex - RAG framework
-- Anthropic Claude - LLM provider
-- OpenAI - LLM provider
-- Pinecone, Weaviate, Chroma - Vector databases
+#### Foundational Papers
 
-**Papers:**
-- "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks" (Lewis et al., 2020)
-- "ReAct: Synergizing Reasoning and Acting in Language Models" (Yao et al., 2023)
-- "Chain-of-Verification Reduces Hallucination in Large Language Models" (Dhuliawala et al., 2023)
-- "Constitutional AI: Harmlessness from AI Feedback" (Bai et al., 2022)
+**RAG & Retrieval**
+- Lewis, P., et al. (2020). *Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks.* NeurIPS 2020. https://arxiv.org/abs/2005.11401
+- Gao, L., et al. (2022). *Precise Zero-Shot Dense Retrieval without Relevance Labels* (HyDE). https://arxiv.org/abs/2212.10496
+- Cormack, G., Clarke, C., & Buettcher, S. (2009). *Reciprocal Rank Fusion Outperforms Condorcet and Individual Rank Learning Methods.* SIGIR 2009.
+
+**Agents & Reasoning**
+- Yao, S., et al. (2023). *ReAct: Synergizing Reasoning and Acting in Language Models.* ICLR 2023. https://arxiv.org/abs/2210.03629
+- Shinn, N., et al. (2023). *Reflexion: Language Agents with Verbal Reinforcement Learning* (planning + reflection). NeurIPS 2023. https://arxiv.org/abs/2303.11366
+- Wei, J., et al. (2022). *Chain-of-Thought Prompting Elicits Reasoning in Large Language Models.* NeurIPS 2022. https://arxiv.org/abs/2201.11903
+
+**Safety & Evaluation**
+- Bai, Y., et al. (2022). *Constitutional AI: Harmlessness from AI Feedback.* https://arxiv.org/abs/2212.08073
+- Dhuliawala, S., et al. (2023). *Chain-of-Verification Reduces Hallucination in Large Language Models.* https://arxiv.org/abs/2309.11495
+- OWASP LLM Top 10 — prompt injection and security guidance: https://owasp.org/www-project-top-10-for-large-language-model-applications/
+
+**System Design**
+- Nygard, M. (2007). *Release It! Design and Deploy Production-Ready Software.* — original circuit breaker pattern.
+
+---
+
+#### Frameworks & Tools
+
+| Tool | Purpose | Link |
+|------|---------|------|
+| LangChain | Orchestration, chains, agents | https://github.com/langchain-ai/langchain |
+| LlamaIndex | RAG framework, indexing | https://github.com/run-llama/llama_index |
+| LangSmith | LLM observability, evals | https://smith.langchain.com |
+| Guardrails AI | Input/output validation | https://github.com/guardrails-ai/guardrails |
+| NeMo Guardrails | Conversational guardrails (NVIDIA) | https://github.com/NVIDIA/NeMo-Guardrails |
+| Pinecone | Managed vector database | https://www.pinecone.io |
+| Weaviate | Open-source vector database | https://weaviate.io |
+| Chroma | Lightweight vector database | https://github.com/chroma-core/chroma |
+| Helicone | LLM cost & latency observability | https://www.helicone.ai |
+| Arize AI | ML/LLM monitoring | https://arize.com |
+
+---
+
+#### Further Reading
+
+- Anthropic. *Prompt injection and jailbreaking mitigations.* https://docs.anthropic.com/en/docs/test-and-evaluate/strengthen-guardrails/mitigate-jailbreaks
+- OpenAI. *Best practices for prompt engineering.* https://platform.openai.com/docs/guides/prompt-engineering
+- Brockman, G., et al. *Evaluating large language models trained on code* (BEIR benchmark context). https://arxiv.org/abs/2107.03374
+- Thakur, N., et al. (2021). *BEIR: A Heterogeneous Benchmark for Zero-shot Evaluation of Information Retrieval Models.* https://arxiv.org/abs/2104.08663
 
 ---
 

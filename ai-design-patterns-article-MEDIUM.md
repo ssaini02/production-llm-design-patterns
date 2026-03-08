@@ -53,6 +53,8 @@ Each pattern follows a consistent structure:
 
 The patterns are framework-agnostic. Whether you're using LangChain, plain OpenAI/Anthropic APIs, or something else, these architectural patterns apply. I'll use pseudocode that should be readable regardless of your stack.
 
+> **📊 A Note on Metrics:** Performance numbers throughout this article — cache hit rates, cost savings, latency improvements, accuracy gains — are illustrative order-of-magnitude estimates based on common engineering experience and publicly reported ranges. Your results will vary significantly based on query volume, model choice, domain, and implementation quality. Treat them as directional guidance, not guarantees. Where specific papers are cited, those numbers come from the referenced research.
+
 Let's dive in.
 
 
@@ -1019,13 +1021,12 @@ metrics = {
 
 ### 📊 By the Numbers
 
-From production contact center system (anonymized):
-- Cache hit rate: 78%
-- Cost per cached response: $0.0001 (just embedding calculation)
-- Cost per uncached response: $0.018 (retrieval + LLM)
-- Daily queries: 50,000
-- Daily savings: 50,000 × 0.78 × $0.0179 = $698/day = $21,400/month
-- Latency improvement: p95 latency dropped from 1.8s to 0.4s
+Illustrative estimates for a high-volume contact center deployment:
+- Cache hit rate: 70–85% (highly query-pattern dependent)
+- Cost per cached response: ~$0.0001 (embedding lookup only)
+- Cost per uncached response: ~$0.015–0.025 (retrieval + LLM generation)
+- At 50,000 daily queries with 78% cache hit rate: ~$600–700/day savings
+- Latency: p95 typically drops from ~1.5–2s uncached to ~50–100ms on cache hit
 
 > **⚠️ Watch Out:**
 
@@ -1092,12 +1093,14 @@ These five patterns help you build reliable, cost-effective agent systems.
 The core ReAct loop:
 
 ```python
-def react_agent(user_request, tools, max_iterations=10):
+def react_agent(user_request, tools, max_iterations=10, system_prompt=None):
     """
     ReAct agent: iterative thought-action-observation loop.
+    Accepts an optional system_prompt; builds a default ReAct prompt if none provided.
     """
-    # System prompt defining the ReAct format
-    system_prompt = """
+    if system_prompt is None:
+        # Default system prompt with ReAct format
+        system_prompt_template = """
     You are an AI agent that solves tasks using available tools.
 
     For each step, you should:
@@ -1119,13 +1122,13 @@ def react_agent(user_request, tools, max_iterations=10):
     Final Answer: [your complete response]
     """
 
-    # Format tool descriptions
-    tool_descriptions = "\n".join([
-        f"- {tool.name}: {tool.description}\n  Parameters: {tool.parameters}"
-        for tool in tools
-    ])
+        # Format tool descriptions
+        tool_descriptions = "\n".join([
+            f"- {tool.name}: {tool.description}\n  Parameters: {tool.parameters}"
+            for tool in tools
+        ])
 
-    system_prompt = system_prompt.format(tool_descriptions=tool_descriptions)
+        system_prompt = system_prompt_template.format(tool_descriptions=tool_descriptions)
 
     # Initialize conversation
     conversation = [
@@ -2389,7 +2392,7 @@ Now let's talk about testing and evaluation—because none of this matters if yo
 
 Traditional software testing doesn't work for LLMs. You can't assert that `summarize_call(transcript) === "Customer called about billing"` because the exact output varies. You can't easily test for regressions when every response is slightly different. And you certainly can't catch security issues like prompt injection with standard security scans.
 
-These five patterns give you the tools to test, evaluate, and secure your LLM applications properly.
+Pattern 11 covers security—the most critical testing concern for any production system. Patterns 12–15 cover evaluation and deployment testing and are presented in the next section alongside the DevOps patterns.
 
 ---
 
@@ -2544,9 +2547,9 @@ Result: "Customer [NAME REDACTED], SSN [REDACTED], called about..."
 
 # 🚀 PART 4: DevOps & Deployment Patterns
 
-Moving to production means thinking about reliability, scale, and operations. RAG gets you information, agents let you act on it, and testing ensures quality. But none of that matters if your system goes down, costs spiral out of control, or you can't debug issues when they arise.
+Moving to production means thinking about reliability, scale, and operations. RAG gets you information, agents let you act on it. But none of that matters if you can't measure quality, your system goes down, costs spiral out of control, or you can't debug issues when they arise.
 
-These four patterns address the unglamorous but critical work that separates prototypes from production systems: handling failures gracefully, managing costs, observing what's actually happening, and ensuring your system can scale.
+These eight patterns address the unglamorous but critical work that separates prototypes from production systems: testing and evaluation, handling failures gracefully, managing costs, observing what's actually happening, and ensuring your system can scale.
 
 ---
 
@@ -2837,7 +2840,7 @@ If you're building for contact centers, prioritize these patterns:
 
 **High-Value (Should-Have):**
 - Pattern 1-3: RAG patterns (leverage knowledge bases)
-- Pattern 5: Context Caching (same articles retrieved repeatedly)
+- Pattern 5: Semantic Caching (same articles retrieved repeatedly)
 - Pattern 17: Batching & Queuing (handle call volume spikes)
 - Pattern 19: Cost Optimization (high volume = costs add up)
 
@@ -2886,7 +2889,7 @@ Building your first production LLM application? Follow this checklist:
 **Week 4: Testing & Optimization**
 - [ ] Build golden dataset (50-100 cases) (Pattern 12)
 - [ ] Set up prompt versioning (Pattern 13)
-- [ ] Implement semantic caching (Pattern 19)
+- [ ] Implement semantic caching (Pattern 5)
 - [ ] Add model routing for cost optimization (Pattern 19)
 
 **Ongoing:**
@@ -2936,18 +2939,50 @@ How do you know if your LLM application is successful? Track these metrics:
 
 ### References & Further Reading
 
-**Frameworks & Tools:**
-- LangChain - Orchestration framework
-- LlamaIndex - RAG framework
-- Anthropic Claude - LLM provider
-- OpenAI - LLM provider
-- Pinecone, Weaviate, Chroma - Vector databases
+#### Foundational Papers
 
-**Papers:**
-- "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks" (Lewis et al., 2020)
-- "ReAct: Synergizing Reasoning and Acting in Language Models" (Yao et al., 2023)
-- "Chain-of-Verification Reduces Hallucination in Large Language Models" (Dhuliawala et al., 2023)
-- "Constitutional AI: Harmlessness from AI Feedback" (Bai et al., 2022)
+**RAG & Retrieval**
+- Lewis, P., et al. (2020). *Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks.* NeurIPS 2020. https://arxiv.org/abs/2005.11401
+- Gao, L., et al. (2022). *Precise Zero-Shot Dense Retrieval without Relevance Labels* (HyDE). https://arxiv.org/abs/2212.10496
+- Cormack, G., Clarke, C., & Buettcher, S. (2009). *Reciprocal Rank Fusion Outperforms Condorcet and Individual Rank Learning Methods.* SIGIR 2009.
+
+**Agents & Reasoning**
+- Yao, S., et al. (2023). *ReAct: Synergizing Reasoning and Acting in Language Models.* ICLR 2023. https://arxiv.org/abs/2210.03629
+- Shinn, N., et al. (2023). *Reflexion: Language Agents with Verbal Reinforcement Learning* (planning + reflection). NeurIPS 2023. https://arxiv.org/abs/2303.11366
+- Wei, J., et al. (2022). *Chain-of-Thought Prompting Elicits Reasoning in Large Language Models.* NeurIPS 2022. https://arxiv.org/abs/2201.11903
+
+**Safety & Evaluation**
+- Bai, Y., et al. (2022). *Constitutional AI: Harmlessness from AI Feedback.* https://arxiv.org/abs/2212.08073
+- Dhuliawala, S., et al. (2023). *Chain-of-Verification Reduces Hallucination in Large Language Models.* https://arxiv.org/abs/2309.11495
+- OWASP LLM Top 10 — prompt injection and security guidance: https://owasp.org/www-project-top-10-for-large-language-model-applications/
+
+**System Design**
+- Nygard, M. (2007). *Release It! Design and Deploy Production-Ready Software.* — original circuit breaker pattern.
+
+---
+
+#### Frameworks & Tools
+
+| Tool | Purpose | Link |
+|------|---------|------|
+| LangChain | Orchestration, chains, agents | https://github.com/langchain-ai/langchain |
+| LlamaIndex | RAG framework, indexing | https://github.com/run-llama/llama_index |
+| LangSmith | LLM observability, evals | https://smith.langchain.com |
+| Guardrails AI | Input/output validation | https://github.com/guardrails-ai/guardrails |
+| NeMo Guardrails | Conversational guardrails (NVIDIA) | https://github.com/NVIDIA/NeMo-Guardrails |
+| Pinecone | Managed vector database | https://www.pinecone.io |
+| Weaviate | Open-source vector database | https://weaviate.io |
+| Chroma | Lightweight vector database | https://github.com/chroma-core/chroma |
+| Helicone | LLM cost & latency observability | https://www.helicone.ai |
+| Arize AI | ML/LLM monitoring | https://arize.com |
+
+---
+
+#### Further Reading
+
+- Anthropic. *Prompt injection and jailbreaking mitigations.* https://docs.anthropic.com/en/docs/test-and-evaluate/strengthen-guardrails/mitigate-jailbreaks
+- OpenAI. *Best practices for prompt engineering.* https://platform.openai.com/docs/guides/prompt-engineering
+- Thakur, N., et al. (2021). *BEIR: A Heterogeneous Benchmark for Zero-shot Evaluation of Information Retrieval Models.* https://arxiv.org/abs/2104.08663
 
 ---
 
