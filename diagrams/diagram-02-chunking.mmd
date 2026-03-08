@@ -1,0 +1,17 @@
+graph LR
+    A[Original Document] --> B{Chunking Strategy}
+    B -->|Fixed Size| C[Chunk 1: 512 tokens<br/>Chunk 2: 512 tokens<br/>Chunk 3: 512 tokens]
+    B -->|Semantic| D[Chunk 1: Intro paragraph<br/>Chunk 2: Setup section<br/>Chunk 3: Troubleshooting]
+    B -->|Hierarchical| E[Parent: Full article<br/>Child: Each section<br/>Grandchild: Each step]
+
+    C -->|Problem| F[Context breaks<br/>mid-sentence]
+    D -->|Better| G[Natural boundaries<br/>with overlap]
+    E -->|Best| H[Multi-level<br/>context]
+
+    style A fill:#e1f5ff
+    style D fill:#e1ffe1
+    style E fill:#e1ffe1
+    style G fill:#e1ffe1
+    style H fill:#e1ffe1
+    style C fill:#ffe1e1
+    style F fill:#ffe1e1

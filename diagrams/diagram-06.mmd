@@ -1,0 +1,21 @@
+graph TD
+    A[User Query:<br/>'how do I reset password?'] --> B[Compute Query Embedding]
+    B --> C[Check Semantic Cache]
+
+    C -->|Similarity > 0.95| D[Cache Hit!<br/>Return cached response<br/>~50ms latency]
+    C -->|Similarity < 0.95| E[Cache Miss<br/>Full RAG pipeline]
+
+    E --> F[Retrieval<br/>~200ms]
+    F --> G[LLM Generation<br/>~1000ms]
+    G --> H[Response<br/>Total: ~1300ms]
+
+    H --> I[Store in Cache<br/>Key: embedding<br/>Value: response]
+    I --> J[Return Response]
+
+    D --> K[Cache Stats:<br/>Cost: $0.0001<br/>Latency: 50ms]
+    J --> L[No Cache Stats:<br/>Cost: $0.02<br/>Latency: 1300ms]
+
+    style D fill:#e1ffe1
+    style K fill:#e1ffe1
+    style H fill:#ffe1e1
+    style L fill:#ffe1e1

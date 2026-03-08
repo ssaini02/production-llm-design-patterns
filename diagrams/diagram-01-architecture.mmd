@@ -1,0 +1,23 @@
+graph TD
+    A[Application Layer] -->|Uses| B[Orchestration Layer]
+    B -->|Calls| C[Model Layer]
+    C -->|Runs on| D[Infrastructure Layer]
+    B -->|Retrieves from| E[Knowledge Layer]
+    F[Observability Layer] -->|Monitors| A
+    F -->|Monitors| B
+    F -->|Monitors| C
+    F -->|Monitors| D
+
+    A[Application Layer<br/>UI, API, Workflows]
+    B[Orchestration Layer<br/>Agents, Chains, RAG]
+    C[Model Layer<br/>LLM APIs, Embeddings]
+    D[Infrastructure Layer<br/>Compute, Storage, Queue]
+    E[Knowledge Layer<br/>Vector DB, Cache, KB]
+    F[Observability Layer<br/>Tracing, Metrics, Logs]
+
+    style A fill:#e1f5ff
+    style B fill:#fff4e1
+    style C fill:#ffe1f5
+    style D fill:#e1ffe1
+    style E fill:#f5e1ff
+    style F fill:#ffe1e1

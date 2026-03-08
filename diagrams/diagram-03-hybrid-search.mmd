@@ -1,0 +1,19 @@
+graph TD
+    A[User Query:<br/>'iPhone 15 Pro Max screen repair'] --> B[Query Processor]
+    B --> C[Dense Retrieval<br/>Vector Similarity]
+    B --> D[Sparse Retrieval<br/>BM25 Keyword]
+
+    C --> E[Results 1:<br/>Semantic matches<br/>Score: 0.0-1.0]
+    D --> F[Results 2:<br/>Keyword matches<br/>Score: 0.0-10.0]
+
+    E --> G[Score Normalization<br/>Min-Max scaling]
+    F --> G
+
+    G --> H[Weighted Fusion<br/>0.7 × dense + 0.3 × sparse]
+    H --> I[Reciprocal Rank Fusion<br/>RRF algorithm]
+    I --> J[Final Results<br/>Top K chunks]
+
+    style A fill:#e1f5ff
+    style J fill:#e1ffe1
+    style H fill:#fff4e1
+    style I fill:#fff4e1

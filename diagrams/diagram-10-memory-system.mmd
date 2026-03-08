@@ -1,0 +1,25 @@
+graph TD
+    A[User Message] --> B[Memory System]
+
+    B --> C[Short-term Memory<br/>Last 10 messages<br/>in context window]
+    B --> D[Medium-term Memory<br/>Session summary<br/>in vector DB]
+    B --> E[Long-term Memory<br/>User facts & history<br/>in database]
+
+    C --> F[Current Conversation Context]
+    D --> G[Semantic Retrieval:<br/>Relevant past interactions]
+    E --> H[User Profile:<br/>Preferences, issues, etc.]
+
+    F --> I[Agent processes<br/>with full context]
+    G --> I
+    H --> I
+
+    I --> J[Agent Response]
+    J --> K[Update Memories]
+
+    K --> L[Add to short-term]
+    K --> M[Summarize to medium-term]
+    K --> N[Extract facts to long-term]
+
+    style A fill:#e1f5ff
+    style I fill:#fff4e1
+    style J fill:#e1ffe1

@@ -1,0 +1,23 @@
+graph LR
+    A[Original Query:<br/>'refund'] --> B[LLM Query Rewriter]
+    B --> C[Expanded Queries:<br/>1. 'refund policy terms'<br/>2. 'how to process refund'<br/>3. 'refund eligibility'<br/>4. 'defective product return']
+
+    C --> D[Parallel Retrieval]
+    D --> E[Result Set 1]
+    D --> F[Result Set 2]
+    D --> G[Result Set 3]
+    D --> H[Result Set 4]
+
+    E --> I[Deduplication &<br/>Score Fusion]
+    F --> I
+    G --> I
+    H --> I
+
+    I --> J[Top K Results]
+
+    A -.->|Context| K[Chat History:<br/>Customer has iPhone<br/>Screen cracked]
+    K --> B
+
+    style A fill:#e1f5ff
+    style B fill:#fff4e1
+    style J fill:#e1ffe1

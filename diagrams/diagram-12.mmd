@@ -1,0 +1,34 @@
+graph TD
+    A[User Input] --> B[Layer 1:<br/>Input Sanitization]
+    B --> C[Detect encoding attacks<br/>Base64, hex, unicode]
+    B --> D[Pattern matching:<br/>known injection attempts]
+
+    C --> E{Suspicious?}
+    D --> E
+    E -->|Yes| F[Block + Log]
+    E -->|No| G[Layer 2:<br/>Instruction Hierarchy]
+
+    G --> H[Isolate user input<br/>with delimiters]
+    H --> I[Mark system prompt<br/>as privileged]
+    I --> J[Use structured format]
+
+    J --> K[LLM Processing]
+
+    K --> L[Layer 3:<br/>Output Validation]
+    L --> M[Check for system<br/>prompt leakage]
+    L --> N[Check for PII leakage]
+    L --> O[Validate behavior<br/>against policy]
+
+    M --> P{Violation?}
+    N --> P
+    O --> P
+    P -->|Yes| Q[Block + Alert]
+    P -->|No| R[Return to User]
+
+    F --> S[Security Log]
+    Q --> S
+
+    style A fill:#e1f5ff
+    style F fill:#ffe1e1
+    style Q fill:#ffe1e1
+    style R fill:#e1ffe1

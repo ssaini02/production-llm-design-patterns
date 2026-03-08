@@ -1,0 +1,25 @@
+graph TD
+    A[User Request:<br/>'Check order status<br/>for customer ID 12345'] --> B[Agent starts ReAct loop]
+
+    B --> C[Thought:<br/>'I need to look up<br/>the order first']
+    C --> D[Action:<br/>call order_lookup_tool<br/>customer_id=12345]
+    D --> E[Observation:<br/>'Order #789 found,<br/>status=shipped']
+
+    E --> F[Thought:<br/>'Now I need tracking info']
+    F --> G[Action:<br/>call tracking_tool<br/>order_id=789]
+    G --> H[Observation:<br/>'Tracking shows<br/>delivery exception']
+
+    H --> I[Thought:<br/>'Need to check<br/>exception policy']
+    I --> J[Action:<br/>call knowledge_base<br/>query=delivery exception]
+    J --> K[Observation:<br/>'Policy: offer reshipment<br/>or refund']
+
+    K --> L[Thought:<br/>'I have all info,<br/>can respond now']
+    L --> M[Action:<br/>Final Answer]
+    M --> N[Response to user]
+
+    style A fill:#e1f5ff
+    style N fill:#e1ffe1
+    style C fill:#fff4e1
+    style F fill:#fff4e1
+    style I fill:#fff4e1
+    style L fill:#fff4e1

@@ -1,0 +1,24 @@
+graph TD
+    A[User Query + Metadata Filters] --> B{Pre-filter by Metadata}
+    B -->|Filter| C[Tenant ID: tenant_123]
+    B -->|Filter| D[Category: billing]
+    B -->|Filter| E[Date: after 2024-01-01]
+    B -->|Filter| F[Access Level: tier2_agent]
+
+    C --> G[Reduced Search Space<br/>10K docs instead of 100K]
+    D --> G
+    E --> G
+    F --> G
+
+    G --> H[Semantic Search<br/>within filtered set]
+    H --> I[Chunk-level Results]
+
+    I --> J{Expand Context?}
+    J -->|Yes| K[Retrieve Parent Document]
+    J -->|No| L[Return Chunks]
+
+    K --> M[Hierarchical Context:<br/>Chunk + Parent + Siblings]
+
+    style A fill:#e1f5ff
+    style G fill:#fff4e1
+    style M fill:#e1ffe1

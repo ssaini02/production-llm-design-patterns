@@ -1,0 +1,26 @@
+graph TD
+    A[User Request] --> B[Planning Phase]
+    B --> C[Agent creates plan:<br/>1. Check order status<br/>2. Get tracking info<br/>3. Draft response]
+
+    C --> D[Execute Step 1]
+    D --> E[Reflection:<br/>Did it work?<br/>Need to revise plan?]
+
+    E -->|Success, continue| F[Execute Step 2]
+    E -->|Failed, replan| G[Revise Plan]
+    G --> D
+
+    F --> H[Reflection]
+    H -->|Success| I[Execute Step 3]
+    H -->|Issue detected| G
+
+    I --> J[Final Reflection:<br/>Task complete?<br/>Quality check]
+
+    J -->|Yes| K[Return Result]
+    J -->|No, more needed| G
+
+    style A fill:#e1f5ff
+    style B fill:#fff4e1
+    style E fill:#fff4e1
+    style H fill:#fff4e1
+    style J fill:#fff4e1
+    style K fill:#e1ffe1

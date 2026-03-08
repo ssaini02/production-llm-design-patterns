@@ -1,0 +1,24 @@
+graph TD
+    A[User Request] --> B[Coordinator Agent]
+
+    B -->|Routing decision| C[Specialist Agent:<br/>Technical Support]
+    B -->|Routing decision| D[Specialist Agent:<br/>Billing & Payments]
+    B -->|Routing decision| E[Specialist Agent:<br/>Sales & Retention]
+    B -->|Routing decision| F[Specialist Agent:<br/>Quality Assurance]
+
+    C -->|Uses| G[Tools: Device API,<br/>Diagnostics, KB]
+    D -->|Uses| H[Tools: Payment API,<br/>Invoice System, Policy KB]
+    E -->|Uses| I[Tools: CRM,<br/>Pricing, Offers DB]
+    F -->|Uses| J[Tools: Call Analysis,<br/>Eval Models, Reporting]
+
+    C --> K[Results]
+    D --> K
+    E --> K
+    F --> K
+
+    K --> B
+    B --> L[Final Response]
+
+    style A fill:#e1f5ff
+    style B fill:#fff4e1
+    style L fill:#e1ffe1

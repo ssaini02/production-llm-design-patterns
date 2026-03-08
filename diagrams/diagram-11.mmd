@@ -1,0 +1,31 @@
+graph TD
+    A[Agent Execution] --> B[Loop Detector]
+
+    B --> C{Check State Similarity}
+    C -->|States too similar| D[Loop Detected!]
+    C -->|States different| E[Continue Execution]
+
+    B --> F{Check Progress}
+    F -->|No new info gained| G[No Progress!]
+    F -->|New info gained| E
+
+    B --> H{Check Iteration Count}
+    H -->|> Max iterations| I[Too Many Iterations!]
+    H -->|< Max iterations| E
+
+    D --> J[Circuit Breaker Triggers]
+    G --> J
+    I --> J
+
+    J --> K{Intervention Strategy}
+    K -->|Soft| L[Inject hint:<br/>'Try different approach']
+    K -->|Hard| M[Force stop + fallback]
+    K -->|Escalate| N[Human handoff]
+
+    E --> O[Agent continues]
+
+    style A fill:#e1f5ff
+    style J fill:#ffe1e1
+    style L fill:#fff4e1
+    style M fill:#ffe1e1
+    style N fill:#fff4e1
